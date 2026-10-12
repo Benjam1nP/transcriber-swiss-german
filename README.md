@@ -6,7 +6,10 @@ und speichert den Text mit Zeitstempeln als `.txt`-Datei.
 - Läuft auf **Windows, macOS und Linux**
 - **Keine Audiodaten verlassen den Computer.** Aus dem Internet werden nur einmalig die Programme und das Modell geladen.
 - Modell: [`Flurin17/whisper-large-v3-turbo-swiss-german`](https://huggingface.co/Flurin17/whisper-large-v3-turbo-swiss-german),
-  ein für Schweizerdeutsch nachtrainiertes Whisper-Modell von OpenAI
+  ein für Schweizerdeutsch nachtrainiertes Whisper-Modell von OpenAI. Es läuft hier mit
+  [faster-whisper](https://github.com/SYSTRAN/faster-whisper) in einer umgewandelten Version
+  ([`Benjam1nP/whisper-large-v3-turbo-swiss-german-ct2-int8`](https://huggingface.co/Benjam1nP/whisper-large-v3-turbo-swiss-german-ct2-int8)).
+- **Lizenz des Modells: CC BY-NC 4.0, nur für nicht-kommerzielle Nutzung.**
 
 ---
 
@@ -43,7 +46,7 @@ Ist Python schon installiert, direkt mit Schritt 2 weitermachen. Die Startdatei 
 1. <https://www.python.org/downloads/macos/> öffnen und den **macOS 64-bit universal2 installer** einer Version 3.12, 3.13 oder 3.14 herunterladen.
 2. Die `.pkg`-Datei öffnen und durch die Installation klicken.
 
-Empfohlen ist ein Mac mit Apple-Chip (M1, M2, M3, …). Ältere Intel-Macs werden von aktuellem PyTorch nicht mehr unterstützt.
+Empfohlen ist ein Mac mit Apple-Chip (M1, M2, M3, …). Ältere Intel-Macs sollten ebenfalls funktionieren, sind aber nicht getestet.
 
 </details>
 
@@ -93,21 +96,26 @@ also auch Videodateien von Teams/Zoom oder Sprachmemos vom iPhone.
 Es öffnet sich ein schwarzes Fenster (Terminal), das den Fortschritt anzeigt. **Das Fenster nicht schliessen**, bis
 *"Fertig. Enter drücken zum Schliessen"* bzw. *"Drücken Sie eine beliebige Taste"* erscheint.
 
-**Beim ersten Start** wird automatisch alles Nötige eingerichtet. Das dauert je nach Internetverbindung **5–20 Minuten**:
+**Beim ersten Start** wird automatisch alles Nötige eingerichtet. Das dauert je nach Internetverbindung **ein paar Minuten**:
 
 ```
 Erster Start: erstelle Python-Umgebung in ... 
-Installiere benötigte Pakete (einmalig, kann 5-15 Minuten dauern) ...
-Lade Modell Flurin17/whisper-large-v3-turbo-swiss-german auf cpu ...
-(Beim ersten Start wird das Modell heruntergeladen, ca. 1.6 GB.)
+Installiere benötigte Pakete (einmalig, dauert einige Minuten) ...
+Lade Modell Benjam1nP/whisper-large-v3-turbo-swiss-german-ct2-int8 ...
+(Beim ersten Start wird das Modell heruntergeladen, ca. 0.8 GB.)
+Modell geladen (Gerät: cpu).
 
 [1/1] meeting.m4a
   Dauer: 00:47:12 – transkribiere ...
-  Fertig in 3105s -> output/meeting.txt
+  [00:00:03 - 00:00:11] Guten Morgen zusammen, wir fangen jetzt mit dem Meeting an.
+  [00:00:12 - 00:00:19] Als Erstes schauen wir das Budget an.
+  ...
+  Fertig in 1610s -> output/meeting.txt
 
 Alle Dateien verarbeitet.
 ```
 
+Der erkannte Text erscheint schon während der Transkription im Fenster.
 Ab dem zweiten Start entfällt die Installation und es geht direkt mit der Transkription los.
 
 ### Schritt 5: Ergebnis öffnen
@@ -115,11 +123,13 @@ Ab dem zweiten Start entfällt die Installation und es geht direkt mit der Trans
 Im Ordner **`output`** liegt pro Audiodatei eine Textdatei mit gleichem Namen, z.B. `meeting.m4a` → `meeting.txt`:
 
 ```
-[00:00:00 - 00:00:28] Guten Morgen zusammen, wir fangen jetzt mit dem Meeting an. Als Erstes schauen wir das Budget an.
-[00:00:28 - 00:00:55] Ja, ich habe die Zahlen vom letzten Quartal mitgebracht ...
+[00:00:03 - 00:00:11] Guten Morgen zusammen, wir fangen jetzt mit dem Meeting an.
+[00:00:12 - 00:00:19] Als Erstes schauen wir das Budget an.
+[00:00:21 - 00:00:30] Ja, ich habe die Zahlen vom letzten Quartal mitgebracht ...
 ```
 
-- Die Zeitangaben sind **Stunden:Minuten:Sekunden** ab Beginn der Aufnahme.
+- Eine Zeile pro Äusserung bzw. Satzgruppe. Die Zeitangaben sind **Stunden:Minuten:Sekunden** ab Beginn der Aufnahme.
+- Längere Pausen und Stille werden übersprungen.
 - **Schweizerdeutsch wird auf Hochdeutsch ausgeschrieben.** So hat das Modell es gelernt.
 - Die Datei ist UTF-8 und lässt sich mit jedem Editor, Word usw. öffnen.
 
@@ -134,11 +144,11 @@ Um eine Datei neu zu transkribieren, die zugehörige `.txt` in `output` löschen
 
 | Computer | Ungefähre Dauer für 1 Stunde Aufnahme |
 |---|---|
-| Normaler Laptop/PC ohne Grafikkarte (CPU) | ca. 1–2 Stunden |
-| Mac mit Apple-Chip (M1/M2/M3/…) | deutlich schneller als CPU |
-| Linux mit NVIDIA-Grafikkarte | wenige Minuten |
+| Moderner Laptop/PC (CPU), z.B. Intel Core Ultra 7 | ca. 35 Minuten (gemessen: Faktor 0.56) |
+| Mac mit Apple-Chip (M1/M2/M3/…) | ähnlich wie CPU, je nach Modell |
+| Mit NVIDIA-Grafikkarte und installiertem CUDA 12 + cuDNN 9 | wenige Minuten |
 
-Unter Windows wird standardmässig die CPU-Version von PyTorch installiert, auch wenn eine NVIDIA-Karte vorhanden ist.
+Eine NVIDIA-Grafikkarte wird automatisch genutzt, wenn CUDA installiert ist. Sonst läuft alles auf der CPU.
 Während der Transkription den Computer nicht in den Ruhezustand gehen lassen.
 
 ---
@@ -159,15 +169,15 @@ Während der Transkription den Computer nicht in den Ruhezustand gehen lassen.
 
 ## Deinstallieren / Speicherplatz freigeben
 
-Das Tool belegt nach dem ersten Start einige GB. Zum vollständigen Entfernen:
+Das Tool belegt nach dem ersten Start ca. 1.3 GB (Programme ca. 0.5 GB, Modell ca. 0.8 GB). Zum vollständigen Entfernen:
 
 1. Den Projektordner löschen.
 2. Die Python-Umgebung löschen:
    - **Windows:** `%LOCALAPPDATA%\transcriber-swiss-german` (in die Adresszeile des Explorers eingeben)
    - **macOS/Linux:** liegt als `.venv` im Projektordner und ist mit Schritt 1 schon weg
 3. Das heruntergeladene Modell löschen:
-   - **Windows:** `%USERPROFILE%\.cache\huggingface\hub\models--Flurin17--whisper-large-v3-turbo-swiss-german`
-   - **macOS/Linux:** `~/.cache/huggingface/hub/models--Flurin17--whisper-large-v3-turbo-swiss-german`
+   - **Windows:** `%USERPROFILE%\.cache\huggingface\hub\models--Benjam1nP--whisper-large-v3-turbo-swiss-german-ct2-int8`
+   - **macOS/Linux:** `~/.cache/huggingface/hub/models--Benjam1nP--whisper-large-v3-turbo-swiss-german-ct2-int8`
 
 ---
 
@@ -175,12 +185,14 @@ Das Tool belegt nach dem ersten Start einige GB. Zum vollständigen Entfernen:
 
 1. Die **Startdatei** (`start-*.bat/.command/.sh`) sucht ein passendes Python und ruft `starter.py` auf.
 2. **`starter.py`** erstellt beim ersten Mal eine eigene Python-Umgebung (venv) und installiert die Pakete aus
-   `requirements.txt` (PyTorch, transformers, PyAV). Ändert sich `requirements.txt`, wird automatisch nachinstalliert.
+   `requirements.txt` (faster-whisper, PyAV). Ändert sich `requirements.txt` (Update), wird die Umgebung automatisch neu aufgebaut.
 3. **`transkribieren.py`**:
    - liest jede Audiodatei aus `input` mit PyAV ein (bringt einen eigenen Decoder mit, ffmpeg ist nicht nötig) und wandelt sie in 16 kHz Mono um,
-   - wählt automatisch das schnellste Gerät: NVIDIA-GPU (CUDA), Apple Silicon (MPS) oder CPU,
-   - transkribiert mit dem Whisper-Modell in 30-Sekunden-Abschnitten (Sprache Deutsch),
-   - schreibt die Abschnitte mit Zeitstempeln nach `output/<name>.txt`.
+   - nutzt eine NVIDIA-GPU, falls vorhanden, sonst die CPU (int8, sparsam und schnell),
+   - erkennt mit Silero-VAD, wo gesprochen wird, und überspringt Stille,
+   - transkribiert mit faster-whisper (Sprache Deutsch, Beam Search),
+   - filtert typische erfundene Whisper-Sätze heraus (z.B. „Untertitelung des ZDF“ oder Text in der Stille am Ende),
+   - schreibt die Segmente mit Zeitstempeln nach `output/<name>.txt`.
 
 | Datei | Zweck |
 |---|---|
@@ -200,7 +212,13 @@ python transkribieren.py
 
 ## Grenzen
 
-- **Zeitstempel sind abschnittsweise** (Blöcke von einigen Sekunden bis knapp einer Minute), nicht pro Satz oder Wort.
+- **Zeitstempel sind pro Äusserung** (meist 5–30 Sekunden), nicht pro Wort.
 - **Keine Sprechererkennung:** Es wird nicht angegeben, *wer* spricht.
 - Wie bei jeder Spracherkennung: Namen, Fachbegriffe und durcheinander redende Personen können falsch erkannt werden.
   **Wichtige Stellen immer mit der Aufnahme abgleichen.**
+
+## Lizenz
+
+- Modell: [`Flurin17/whisper-large-v3-turbo-swiss-german`](https://huggingface.co/Flurin17/whisper-large-v3-turbo-swiss-german)
+  von Flurin17, **CC BY-NC 4.0**, **nur nicht-kommerzielle Nutzung**. Die hier verwendete Version ist lediglich ins
+  CTranslate2-Format (int8) umgewandelt, nicht neu trainiert.

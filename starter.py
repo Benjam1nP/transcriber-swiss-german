@@ -5,6 +5,7 @@ Wird von start-windows.bat / start-mac.command / start-linux.sh aufgerufen.
 
 import hashlib
 import os
+import shutil
 import subprocess
 import sys
 import venv
@@ -37,12 +38,17 @@ def main() -> int:
     marker = vdir / ".requirements-hash"
     req_hash = hashlib.sha256(REQUIREMENTS.read_bytes()).hexdigest()
 
+    if py.exists() and (not marker.exists() or marker.read_text().strip() != req_hash):
+        # Pakete haben sich geändert (Update): Umgebung neu aufbauen, damit nichts Altes liegen bleibt
+        print("Update: baue Python-Umgebung neu auf ...")
+        shutil.rmtree(vdir)
+
     if not py.exists():
         print(f"Erster Start: erstelle Python-Umgebung in {vdir} ...")
         venv.create(vdir, with_pip=True)
 
-    if not marker.exists() or marker.read_text().strip() != req_hash:
-        print("Installiere benötigte Pakete (einmalig, kann 5-15 Minuten dauern) ...")
+    if not marker.exists():
+        print("Installiere benötigte Pakete (einmalig, dauert einige Minuten) ...")
         subprocess.run([str(py), "-m", "pip", "install", "--upgrade", "pip"], check=True)
         subprocess.run([str(py), "-m", "pip", "install", "-r", str(REQUIREMENTS)], check=True)
         marker.write_text(req_hash)
