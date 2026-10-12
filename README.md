@@ -18,17 +18,17 @@ Modell: [`Flurin17/whisper-large-v3-turbo-swiss-german`](https://huggingface.co/
    | macOS | `start-mac.command` doppelklicken | Beim ersten Mal: Rechtsklick → *Öffnen*. Falls blockiert: *Systemeinstellungen → Datenschutz & Sicherheit → Trotzdem öffnen*. Alternativ im Terminal: `bash start-mac.command` |
    | Linux | `./start-linux.sh` im Terminal | |
 
-4. Das Transkript erscheint im Ordner **`output`** als `.txt` mit Zeitstempeln, z.B.:
+4. Das Transkript erscheint im Ordner **`output`** als `.txt` mit Zeitstempeln. Auch Schweizerdeutsch wird dabei auf Hochdeutsch ausgeschrieben, z.B.:
 
    ```
-   [00:00:00 - 00:00:28] Guten Morgen zusammen, mir fanged grad a mit em Meeting ...
+   [00:00:00 - 00:00:28] Guten Morgen zusammen, wir fangen jetzt mit dem Meeting an ...
    ```
 
 Bereits transkribierte Dateien werden beim nächsten Start übersprungen. Um eine Datei neu zu transkribieren, die zugehörige `.txt` in `output` löschen.
 
 ## Voraussetzung: Python
 
-Nur **Python 3.10 bis 3.13** muss installiert sein (empfohlen 3.12): <https://www.python.org/downloads/>
+Nur **Python 3.10 bis 3.14** muss installiert sein (3.15 wird noch nicht unterstützt): <https://www.python.org/downloads/>
 
 - **Windows:** bei der Installation **"Add python.exe to PATH"** anhaken.
 - **macOS:** Installer von python.org verwenden (Apple Silicon M1/M2/M3/... empfohlen; ältere Intel-Macs werden von aktuellem PyTorch nicht mehr unterstützt).
@@ -40,9 +40,9 @@ Ein separates ffmpeg ist nicht nötig.
 ## Gut zu wissen
 
 - **Erster Start dauert länger:** Pakete (ca. 1–3 GB) und das Modell (ca. 1.6 GB) werden einmalig heruntergeladen.
-- **Geschwindigkeit:** Mit NVIDIA-Grafikkarte (CUDA) oder Apple Silicon (MPS) schnell. Auf reiner CPU deutlich langsamer,
-  grob 1–2× die Länge der Aufnahme.
-- **Zeitstempel** sind abschnittsweise (Blöcke von einigen Sekunden bis ca. 30 Sekunden), nicht pro Wort.
+- **Geschwindigkeit:** Auf Apple Silicon (MPS) und unter Linux mit NVIDIA-Grafikkarte (CUDA) schnell.
+  Unter Windows wird standardmässig die CPU-Version von PyTorch installiert. Auf der CPU dauert es grob 1–2× die Länge der Aufnahme.
+- **Zeitstempel** sind abschnittsweise (Blöcke von einigen Sekunden bis knapp einer Minute), nicht pro Wort.
 - Die Python-Umgebung liegt unter Windows in `%LOCALAPPDATA%\transcriber-swiss-german\venv`, sonst im Projektordner unter `.venv`.
   Zum Zurücksetzen einfach diesen Ordner löschen.
 

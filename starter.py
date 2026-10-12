@@ -27,8 +27,8 @@ def venv_python(vdir: Path) -> Path:
 
 
 def main() -> int:
-    if sys.version_info < (3, 10) or sys.version_info >= (3, 14):
-        print(f"Python {sys.version.split()[0]} wird nicht unterstützt. Bitte Python 3.10 bis 3.13 installieren")
+    if sys.version_info < (3, 10) or sys.version_info >= (3, 15):
+        print(f"Python {sys.version.split()[0]} wird nicht unterstützt. Bitte Python 3.10 bis 3.14 installieren")
         print("(empfohlen: 3.12, https://www.python.org/downloads/).")
         return 1
 
@@ -47,7 +47,8 @@ def main() -> int:
         subprocess.run([str(py), "-m", "pip", "install", "-r", str(REQUIREMENTS)], check=True)
         marker.write_text(req_hash)
 
-    return subprocess.run([str(py), str(BASE_DIR / "transkribieren.py")]).returncode
+    env = dict(os.environ, HF_HUB_DISABLE_SYMLINKS_WARNING="1", PYTHONUTF8="1")
+    return subprocess.run([str(py), str(BASE_DIR / "transkribieren.py")], env=env).returncode
 
 
 if __name__ == "__main__":

@@ -4,9 +4,12 @@ Modell: Flurin17/whisper-large-v3-turbo-swiss-german (Schweizerdeutsch + Hochdeu
 Bereits transkribierte Dateien werden übersprungen.
 """
 
+import os
 import sys
 import time
 from pathlib import Path
+
+os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")  # Apple Silicon: fehlende Operationen auf CPU ausführen
 
 import av
 import numpy as np
@@ -112,6 +115,8 @@ def main() -> int:
             if not text:
                 continue
             ts_start, ts_end = chunk["timestamp"]
+            if ts_end is None:
+                ts_end = len(audio) / SAMPLE_RATE
             lines.append(f"[{format_ts(ts_start)} - {format_ts(ts_end)}] {text}")
         if not lines:
             lines.append(result.get("text", "").strip())
