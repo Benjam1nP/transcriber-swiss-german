@@ -1,0 +1,9 @@
+# Python-Umgebung
+.venv/
+__pycache__/
+
+# Audio und Transkripte niemals ins Repo
+input/*
+!input/.gitkeep
+output/*
+!output/.gitkeep
